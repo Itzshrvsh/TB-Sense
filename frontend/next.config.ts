@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
-const backendUrl = process.env.BACKEND_API_URL || "http://127.0.0.1:5001";
+const isDev = process.env.NODE_ENV === "development";
+const backendUrl = process.env.BACKEND_API_URL || (isDev ? "http://127.0.0.1:5001" : "https://tb-sense.onrender.com");
 
 const nextConfig: NextConfig = {
   async rewrites() {
