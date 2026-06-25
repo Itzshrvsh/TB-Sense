@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TB-Sense AI on-device diagnostic dashboard. Combines CNN cough sound spectrographic analysis, EfficientNetB0 chest X-ray screening, and clinical symptom rule engines for multimodal tuberculosis triage.">
+  <title>TB-Sense AI | Multimodal Tuberculosis Diagnostics</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS link -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="ambient-glow"></div>
+  
+  <!-- Sidebar Navigation -->
+  <aside class="app-sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <i class="fa-solid fa-lungs-virus"></i>
+      </div>
+      <div class="brand-name">
+        <h1>TB-Sense AI</h1>
+        <p>Multimodal Engine</p>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav" aria-label="Main Navigation">
+      <button class="nav-item active" onclick="switchTab('dashboard')" id="tab-btn-dashboard">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </button>
+      <button class="nav-item" onclick="switchTab('prediction')" id="tab-btn-prediction">
+        <i class="fa-solid fa-stethoscope"></i> Prediction Page
+      </button>
+      <button class="nav-item" onclick="switchTab('training')" id="tab-btn-training">
+        <i class="fa-solid fa-rotate"></i> Training Status
+      </button>
+      <button class="nav-item" onclick="switchTab('metrics')" id="tab-btn-metrics">
+        <i class="fa-solid fa-square-poll-vertical"></i> Model Metrics
+      </button>
+      <button class="nav-item" onclick="switchTab('dataset')" id="tab-btn-dataset">
+        <i class="fa-solid fa-database"></i> Dataset Statistics
+      </button>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <div class="hardware-indicator">
+        <i class="fa-solid fa-microchip" id="hw-icon"></i>
+        <div class="hw-details">
+          <span class="hw-title">Acceleration</span>
+          <span class="hw-value" id="hw-acceleration-value">Detecting...</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main View Area -->
+  <main class="app-content">
+    
+    <!-- PAGE 1: DASHBOARD OVERVIEW -->
+    <section class="page-section active" id="page-dashboard" aria-labelledby="header-dashboard">
+      <header class="page-header">
+        <h2 id="header-dashboard">System Status Overview</h2>
+        <p>On-device multimodal Tuberculosis screening diagnostic hub</p>
+      </header>
+      
+      <!-- Summary stats grid -->
+      <div class="grid-3-col">
+        <div class="summary-card">
+          <div class="summary-card-icon">
+            <i class="fa-solid fa-lungs"></i>
+          </div>
+          <div class="summary-card-info">
+            <h3 id="dash-xray-count">0</h3>
+            <p>X-Ray Samples</p>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-icon accent">
+            <i class="fa-solid fa-volume-high"></i>
+          </div>
+          <div class="summary-card-info">
+            <h3 id="dash-cough-count">0</h3>
+            <p>Cough Recordings</p>
+          </div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-icon cyan">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="summary-card-info">
+            <h3 id="dash-engine-status">Active</h3>
+            <p>Fusion Classifier</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><i class="fa-solid fa-network-wired text-indigo"></i> Multimodal Diagnostics Pipeline</h3>
+        <p style="margin-bottom: 1.5rem;">TB-Sense AI combines clinical symptoms, audio cough patterns, and radiography image features on-device. This mitigates diagnosis error and achieves superior precision.</p>
+        
+        <div class="grid-3-col" style="margin-bottom: 0;">
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--glass-border); padding: 1.25rem; border-radius: var(--border-radius-sm);">
+            <h4 class="text-indigo" style="margin-bottom: 6px;"><i class="fa-solid fa-microphone-lines"></i> Audio Channel (30%)</h4>
+            <p style="font-size: 0.8125rem;">Extracts frequency coefficients and Mel spectrograms from solicitous cough clips, processing them via a 2D deep learning CNN.</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--glass-border); padding: 1.25rem; border-radius: var(--border-radius-sm);">
+            <h4 class="text-cyan" style="margin-bottom: 6px;"><i class="fa-solid fa-x-ray"></i> Image Channel (50%)</h4>
+            <p style="font-size: 0.8125rem;">Processes chest radiographs through a deep EfficientNetB0 feature extractor, outputting anatomical prediction indices.</p>
+          </div>
+          <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--glass-border); padding: 1.25rem; border-radius: var(--border-radius-sm);">
+            <h4 class="text-violet" style="margin-bottom: 6px;"><i class="fa-solid fa-clipboard-check"></i> Clinical Channel (20%)</h4>
+            <p style="font-size: 0.8125rem;">Evaluates 11 constitutional symptoms and exposures, mapping flags like blood in sputum, smoking history, and chronic cough.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: PREDICTION WORKFLOW -->
+    <section class="page-section" id="page-prediction" aria-labelledby="header-prediction">
+      <header class="page-header">
+        <h2 id="header-prediction">Diagnostic Portal</h2>
+        <p>Upload patient files and clinical inputs for late-fusion inference</p>
+      </header>
+
+      <div class="grid-2-col">
+        <!-- Left: Form Input -->
+        <div class="card" style="padding-bottom: 1.5rem;">
+          <form id="prediction-form" enctype="multipart/form-data" novalidate>
+            <!-- Fieldset 1: Clinical Data -->
+            <fieldset class="form-fieldset">
+              <legend><i class="fa-solid fa-id-card"></i> Patient Profile & History</legend>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="age">Patient Age (Years)</label>
+                  <input type="number" id="age" name="age" min="1" max="120" placeholder="e.g. 45" required>
+                  <span class="error-text" id="age-error" role="alert"></span>
+                </div>
+                <div class="input-group">
+                  <label for="gender">Gender</label>
+                  <div class="select-wrapper">
+                    <select id="gender" name="gender" required>
+                      <option value="" disabled selected>Select gender</option>
+                      <option value="M">Male</option>
+                      <option value="F">Female</option>
+                    </select>
+                  </div>
+                  <span class="error-text" id="gender-error" role="alert"></span>
+                </div>
+              </div>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="smoking_history">Smoking History</label>
+                  <div class="select-wrapper">
+                    <select id="smoking_history" name="smoking_history" required>
+                      <option value="Never">Never</option>
+                      <option value="Former">Former</option>
+                      <option value="Current">Current</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="previous_tb">Previous TB History</label>
+                  <div class="select-wrapper">
+                    <select id="previous_tb" name="previous_tb" required>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Fieldset 2: Active Symptoms -->
+            <fieldset class="form-fieldset">
+              <legend><i class="fa-solid fa-notes-medical"></i> Clinical Symptom Scores</legend>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="cough_duration">Cough Duration (Days)</label>
+                  <input type="number" id="cough_duration" name="cough_duration" min="0" max="365" placeholder="e.g. 14" required>
+                  <span class="error-text" id="cough_duration-error" role="alert"></span>
+                </div>
+                <div class="input-group">
+                  <label for="cough_severity">Cough Severity (0-10)</label>
+                  <input type="number" id="cough_severity" name="cough_severity" min="0" max="10" value="5" required>
+                  <span class="error-text" id="cough_severity-error" role="alert"></span>
+                </div>
+              </div>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="breathlessness">Breathlessness Score (0-10)</label>
+                  <input type="number" id="breathlessness" name="breathlessness" min="0" max="10" value="3" required>
+                  <span class="error-text" id="breathlessness-error" role="alert"></span>
+                </div>
+                <div class="input-group">
+                  <label for="fatigue_severity">Fatigue Severity (0-10)</label>
+                  <input type="number" id="fatigue_severity" name="fatigue_severity" min="0" max="10" value="5" required>
+                  <span class="error-text" id="fatigue_severity-error" role="alert"></span>
+                </div>
+              </div>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="weight_loss_val">Weight Loss (kg)</label>
+                  <input type="number" id="weight_loss_val" name="weight_loss_val" min="0" max="50" step="0.1" value="3.0" required>
+                  <span class="error-text" id="weight_loss_val-error" role="alert"></span>
+                </div>
+                <div class="input-group">
+                  <label for="fever_level">Fever Severity</label>
+                  <div class="select-wrapper">
+                    <select id="fever_level" name="fever_level" required>
+                      <option value="None">None</option>
+                      <option value="Mild" selected>Mild</option>
+                      <option value="Moderate">Moderate</option>
+                      <option value="High">High</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="sputum_production">Sputum Production</label>
+                  <div class="select-wrapper">
+                    <select id="sputum_production" name="sputum_production" required>
+                      <option value="None">None</option>
+                      <option value="Low">Low</option>
+                      <option value="Medium" selected>Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="chest_pain">Chest Pain Presence</label>
+                  <div class="select-wrapper">
+                    <select id="chest_pain" name="chest_pain" required>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="grid-2-col" style="gap: 1.25rem; margin-bottom: 1rem;">
+                <div class="input-group">
+                  <label for="night_sweats">Night Sweats Presence</label>
+                  <div class="select-wrapper">
+                    <select id="night_sweats" name="night_sweats" required>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="input-group">
+                  <label for="blood_in_sputum">Blood in Sputum (Hemoptysis)</label>
+                  <div class="select-wrapper">
+                    <select id="blood_in_sputum" name="blood_in_sputum" required>
+                      <option value="false">No</option>
+                      <option value="true">Yes</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+
+            <!-- Fieldset 3: Modality Uploads -->
+            <fieldset class="form-fieldset">
+              <legend><i class="fa-solid fa-upload"></i> Modality Uploads</legend>
+              <div class="modality-upload-grid">
+                <!-- Cough Audio -->
+                <div class="upload-container" id="audio-container">
+                  <label style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; display: block;">Cough Audio</label>
+                  <div class="upload-zone" id="audio-zone">
+                    <input type="file" id="cough_audio" name="cough_audio" accept=".wav,.mp3" class="visually-hidden" required>
+                    <div class="upload-zone-content">
+                      <i class="fa-solid fa-microphone-lines upload-icon"></i>
+                      <p class="upload-text">Browse or drop <span>audio</span></p>
+                      <p class="upload-hint">WAV, MP3 formats</p>
+                    </div>
+                    <div class="file-preview hidden" id="audio-preview-box">
+                      <i class="fa-solid fa-file-audio preview-icon"></i>
+                      <div class="file-info">
+                        <span class="file-name" id="audio-filename"></span>
+                        <button type="button" class="remove-btn" id="audio-remove-btn" aria-label="Remove audio file"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="error-text" id="cough_audio-error" role="alert"></span>
+                </div>
+                
+                <!-- Chest X-ray -->
+                <div class="upload-container" id="xray-container">
+                  <label style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 6px; display: block;">Chest X-Ray Image</label>
+                  <div class="upload-zone" id="xray-zone">
+                    <input type="file" id="chest_xray" name="chest_xray" accept=".png,.jpg,.jpeg" class="visually-hidden" required>
+                    <div class="upload-zone-content">
+                      <i class="fa-solid fa-x-ray upload-icon"></i>
+                      <p class="upload-text">Browse or drop <span>image</span></p>
+                      <p class="upload-hint">PNG, JPG, JPEG formats</p>
+                    </div>
+                    <div class="file-preview hidden" id="xray-preview-box">
+                      <i class="fa-solid fa-image preview-icon"></i>
+                      <div class="file-info">
+                        <span class="file-name" id="xray-filename"></span>
+                        <button type="button" class="remove-btn" id="xray-remove-btn" aria-label="Remove xray image"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                  <span class="error-text" id="chest_xray-error" role="alert"></span>
+                </div>
+              </div>
+            </fieldset>
+
+            <button type="submit" class="btn btn-primary" id="predict-btn" style="width: 100%; height: 48px;">
+              <span id="predict-btn-text">Execute AI Diagnosis</span>
+              <span id="predict-btn-spinner" class="hidden"><i class="fa-solid fa-circle-notch fa-spin"></i> Processing Inference...</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Results Panel -->
+        <div class="card" id="results-panel">
+          <!-- Placeholder View -->
+          <div id="results-placeholder" style="text-align: center; padding: 4rem 1.5rem;">
+            <div style="background: rgba(255,255,255,0.01); width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.8rem; border: 1px solid var(--glass-border); color: var(--color-primary);">
+              <i class="fa-solid fa-wave-square"></i>
+            </div>
+            <h4>Diagnostics Output Console</h4>
+            <p style="font-size: 0.8125rem; max-width: 280px; margin: 6px auto 0; color: var(--color-text-muted);">Inference results and explainable AI overlays will compile here following submission.</p>
+          </div>
+
+          <!-- Active Results View -->
+          <div id="results-active" class="hidden">
+            <div class="result-banner-box" id="result-banner">
+              <div class="banner-icon" id="result-banner-icon">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div class="result-info">
+                <p style="font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--color-text-muted);">multimodal screening classification</p>
+                <h3 id="result-label">Tuberculosis High Suspicion</h3>
+                <p id="result-description">Multimodal assessment indicates high risk of tuberculosis.</p>
+              </div>
+            </div>
+
+            <!-- Modality Breakdowns -->
+            <div class="results-probabilities-grid">
+              <div class="prob-card">
+                <span class="prob-label">Overall Fusion</span>
+                <div class="prob-value text-indigo" id="val-fusion">0%</div>
+              </div>
+              <div class="prob-card">
+                <span class="prob-label">X-Ray CNN</span>
+                <div class="prob-value text-cyan" id="val-xray">0%</div>
+              </div>
+              <div class="prob-card">
+                <span class="prob-label">Cough CNN</span>
+                <div class="prob-value text-violet" id="val-cough">0%</div>
+              </div>
+              <div class="prob-card">
+                <span class="prob-label">Clinical Risk</span>
+                <div class="prob-value text-gray" id="val-clinical">0%</div>
+              </div>
+            </div>
+
+            <!-- Grad-CAM Display -->
+            <div class="gradcam-view-grid" id="gradcam-box">
+              <div class="gradcam-image-box">
+                <img id="img-original-xray" src="" alt="Uploaded Chest X-ray image">
+                <div class="image-caption">Original Radiograph</div>
+              </div>
+              <div class="gradcam-image-box">
+                <img id="img-gradcam-xray" src="" alt="Grad-CAM activation overlay highlights on Chest X-ray">
+                <div class="image-caption">Grad-CAM Activation</div>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+              <button class="btn btn-primary" id="btn-pdf-download" style="flex: 1;">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF Diagnostic Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: TRAINING CONTROL -->
+    <section class="page-section" id="page-training" aria-labelledby="header-training">
+      <header class="page-header">
+        <h2 id="header-training">Automated Model Training</h2>
+        <p>Monitor pipeline compilation, hardware configuration, and trigger training iterations</p>
+      </header>
+
+      <div class="grid-2-col">
+        <!-- Left: Status Cards -->
+        <div>
+          <div class="card" style="padding-bottom: 1.5rem;">
+            <h3>Training Phase Status</h3>
+            <p style="font-size: 0.875rem; margin-bottom: 1.5rem;">The engine automatically trains missing model checkpoints on startup using Apple Silicon acceleration layers if configured.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 12px 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);">
+                <div>
+                  <h4 style="font-size: 0.9375rem;"><i class="fa-solid fa-microphone-lines text-indigo"></i> Cough Spectrogram CNN</h4>
+                  <span style="font-size: 0.75rem; color: var(--color-text-muted);">Target: models/cough_model.h5</span>
+                </div>
+                <span class="status-badge" id="badge-cough-status">Pending</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 12px 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);">
+                <div>
+                  <h4 style="font-size: 0.9375rem;"><i class="fa-solid fa-x-ray text-cyan"></i> Chest X-Ray EfficientNetB0</h4>
+                  <span style="font-size: 0.75rem; color: var(--color-text-muted);">Target: models/xray_model.h5</span>
+                </div>
+                <span class="status-badge" id="badge-xray-status">Pending</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 12px 16px; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);">
+                <div>
+                  <h4 style="font-size: 0.9375rem;"><i class="fa-solid fa-gears text-violet"></i> Pipeline Execution state</h4>
+                  <span style="font-size: 0.75rem; color: var(--color-text-muted);">Active Task Stage</span>
+                </div>
+                <span style="font-size: 0.8125rem; font-weight: 700; color: var(--color-primary);" id="text-active-phase">Idle</span>
+              </div>
+            </div>
+            
+            <button class="btn btn-secondary" id="btn-trigger-retrain" style="width: 100%; margin-top: 1.5rem; height: 44px;">
+              <i class="fa-solid fa-arrows-rotate"></i> Reset Checkpoints & Force Retraining
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: Terminal Logger -->
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <div class="terminal-title">train_pipeline_execution.log</div>
+            <div style="font-size: 0.7rem; color: var(--color-text-muted);"><i class="fa-solid fa-circle fa-spin text-success" id="terminal-pulse"></i> online</div>
+          </div>
+          <pre class="terminal-body" id="terminal-logs">Loading console logs...</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: MODEL METRICS -->
+    <section class="page-section" id="page-metrics" aria-labelledby="header-metrics">
+      <header class="page-header">
+        <h2 id="header-metrics">Classifier Metrics & Validation</h2>
+        <p>Quantitative validation variables, ROC curves, and confusion matrices evaluated on holdout splits</p>
+      </header>
+
+      <div class="card">
+        <h3>Model Performance Summary</h3>
+        <table class="metrics-comparison-table">
+          <thead>
+            <tr>
+              <th>Model Name</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1 Score</th>
+              <th>ROC-AUC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-indigo"><b>Cough Spectrogram CNN</b></td>
+              <td id="m-cough-acc">0.0%</td>
+              <td id="m-cough-prec">0.0%</td>
+              <td id="m-cough-rec">0.0%</td>
+              <td id="m-cough-f1">0.0%</td>
+              <td id="m-cough-auc">0.00</td>
+            </tr>
+            <tr>
+              <td class="text-cyan"><b>Chest X-Ray EfficientNetB0</b></td>
+              <td id="m-xray-acc">0.0%</td>
+              <td id="m-xray-prec">0.0%</td>
+              <td id="m-xray-rec">0.0%</td>
+              <td id="m-xray-f1">0.0%</td>
+              <td id="m-xray-auc">0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid-2-col">
+        <!-- ROC Curve Visualizer -->
+        <div class="card">
+          <h3>ROC Curve Visualizer</h3>
+          <p style="font-size: 0.78rem; color: var(--color-text-muted); margin-bottom: 1rem;">Comparison of True Positive Rate vs False Positive Rate</p>
+          <div class="svg-roc-container">
+            <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; overflow: visible;" id="svg-roc">
+              <!-- Grid lines -->
+              <line x1="0" y1="100" x2="100" y2="100" stroke="#334155" stroke-width="0.5" />
+              <line x1="0" y1="0" x2="0" y2="100" stroke="#334155" stroke-width="0.5" />
+              <line x1="0" y1="0" x2="100" y2="100" stroke="#334155" stroke-dasharray="2" stroke-width="0.5" />
+              
+              <!-- Cough path -->
+              <path id="svg-path-cough" d="" fill="none" stroke="#6366f1" stroke-width="1.5" />
+              <!-- Xray path -->
+              <path id="svg-path-xray" d="" fill="none" stroke="#06b6d4" stroke-width="1.5" />
+            </svg>
+            <div style="display: flex; gap: 12px; justify-content: center; font-size: 0.72rem; margin-top: 10px;">
+              <span><i class="fa-solid fa-minus text-indigo"></i> Cough Model</span>
+              <span><i class="fa-solid fa-minus text-cyan"></i> Chest X-ray Model</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confusion Matrices -->
+        <div class="card">
+          <h3 style="text-align: center;">Confusion Matrices</h3>
+          <div style="display: flex; gap: 2rem; justify-content: center;">
+            <div>
+              <h4 style="font-size: 0.8125rem; text-align: center;" class="text-indigo">Cough Model</h4>
+              <div class="confusion-matrix-grid" id="cm-cough">
+                <div></div><div class="cm-header">True -</div><div class="cm-header">True +</div>
+                <div class="cm-label">Pred -</div>
+                <div class="cm-cell diagonal"><span class="cm-value" id="cm-cough-tn">0</span><span class="cm-cell-label">TN</span></div>
+                <div class="cm-cell"><span class="cm-value" id="cm-cough-fn">0</span><span class="cm-cell-label">FN</span></div>
+                <div class="cm-label">Pred +</div>
+                <div class="cm-cell"><span class="cm-value" id="cm-cough-fp">0</span><span class="cm-cell-label">FP</span></div>
+                <div class="cm-cell diagonal"><span class="cm-value" id="cm-cough-tp">0</span><span class="cm-cell-label">TP</span></div>
+              </div>
+            </div>
+            <div>
+              <h4 style="font-size: 0.8125rem; text-align: center;" class="text-cyan">X-Ray Model</h4>
+              <div class="confusion-matrix-grid" id="cm-xray">
+                <div></div><div class="cm-header">True -</div><div class="cm-header">True +</div>
+                <div class="cm-label">Pred -</div>
+                <div class="cm-cell diagonal"><span class="cm-value" id="cm-xray-tn">0</span><span class="cm-cell-label">TN</span></div>
+                <div class="cm-cell"><span class="cm-value" id="cm-xray-fn">0</span><span class="cm-cell-label">FN</span></div>
+                <div class="cm-label">Pred +</div>
+                <div class="cm-cell"><span class="cm-value" id="cm-xray-fp">0</span><span class="cm-cell-label">FP</span></div>
+                <div class="cm-cell diagonal"><span class="cm-value" id="cm-xray-tp">0</span><span class="cm-cell-label">TP</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: DATASET STATS -->
+    <section class="page-section" id="page-dataset" aria-labelledby="header-dataset">
+      <header class="page-header">
+        <h2 id="header-dataset">Dataset Composition</h2>
+        <p>Quantitative statistics on active screening databases</p>
+      </header>
+
+      <div class="grid-2-col">
+        <!-- Audio datasets composition -->
+        <div class="card">
+          <h3>Cough Sound Database Distribution</h3>
+          <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Comparison of TB Triage Labels</p>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 4px;">
+                <span>TB Positive Sounds</span>
+                <span id="txt-cough-pos">0</span>
+              </div>
+              <div style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden;">
+                <div id="bar-cough-pos" style="width: 50%; height: 100%; background: var(--color-primary);"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 4px;">
+                <span>TB Negative/Normal Sounds</span>
+                <span id="txt-cough-neg">0</span>
+              </div>
+              <div style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden;">
+                <div id="bar-cough-neg" style="width: 50%; height: 100%; background: var(--color-text-muted);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radiography dataset composition -->
+        <div class="card">
+          <h3>Radiographs Database Distribution</h3>
+          <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Comparison of Anatomical Chest X-ray Labels</p>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 4px;">
+                <span>Tuberculosis Radiographs</span>
+                <span id="txt-xray-pos">0</span>
+              </div>
+              <div style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden;">
+                <div id="bar-xray-pos" style="width: 50%; height: 100%; background: var(--color-cyan);"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 4px;">
+                <span>Normal/Clear Radiographs</span>
+                <span id="txt-xray-neg">0</span>
+              </div>
+              <div style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden;">
+                <div id="bar-xray-neg" style="width: 50%; height: 100%; background: var(--color-text-muted);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clinical dataset composition -->
+        <div class="card" id="card-clinical-dataset" style="grid-column: span 2; margin-top: 1rem;">
+          <h3>Clinical Symptoms Patient Database Distribution</h3>
+          <p style="font-size: 0.8125rem; color: var(--color-text-muted); margin-bottom: 1.5rem;">Statistics of the loaded 20,000-row tabular patient details</p>
+          
+          <div class="grid-3-col" style="margin-bottom: 1.5rem; gap: 1.5rem;">
+            <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--border-radius-sm); text-align: center;">
+              <span class="prob-label">Total Records</span>
+              <div class="prob-value text-indigo" id="txt-clinical-total">0</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--border-radius-sm); text-align: center;">
+              <span class="prob-label">Average Patient Age</span>
+              <div class="prob-value text-cyan" id="txt-clinical-age">0.0</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.015); border: 1px solid var(--glass-border); padding: 1rem; border-radius: var(--border-radius-sm); text-align: center;">
+              <span class="prob-label">Gender Balanced Ratio</span>
+              <div class="prob-value text-violet" id="txt-clinical-gender">0</div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 4px;">
+                <span>Tuberculosis Suspected Records</span>
+                <span id="txt-clinical-pos">0</span>
+              </div>
+              <div style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden;">
+                <div id="bar-clinical-pos" style="width: 30%; height: 100%; background: var(--color-accent);"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 4px;">
+                <span>Normal Healthy Records</span>
+                <span id="txt-clinical-neg">0</span>
+              </div>
+              <div style="height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px; overflow: hidden;">
+                <div id="bar-clinical-neg" style="width: 70%; height: 100%; background: var(--color-text-muted);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Tab switching routing logic
+    function switchTab(tabName) {
+      // Deactivate all sections & buttons
+      document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      
+      // Activate target
+      document.getElementById(`page-${tabName}`).classList.add('active');
+      document.getElementById(`tab-btn-${tabName}`).classList.add('active');
+      
+      // Perform API pulls on target navigation
+      if (tabName === 'metrics') {
+        loadMetrics();
+      } else if (tabName === 'dataset') {
+        loadDatasetStats();
+      } else if (tabName === 'dashboard') {
+        loadDashboardStats();
+      }
+    }
+
+    // Drag-and-drop & file selection bindings
+    function configureDragAndDrop(zoneId, inputId, previewBoxId, filenameId, removeBtnId) {
+      const zone = document.getElementById(zoneId);
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewBoxId);
+      const filenameText = document.getElementById(filenameId);
+      const removeBtn = document.getElementById(removeBtnId);
+      const content = zone.querySelector('.upload-zone-content');
+
+      zone.addEventListener('click', () => {
+        if (preview.classList.contains('hidden')) {
+          input.click();
+        }
+      });
+
+      input.addEventListener('change', () => {
+        if (input.files.length > 0) {
+          showFileSelected(input.files[0].name);
+        }
+      });
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+      });
+
+      ['dragleave', 'dragend'].forEach(type => {
+        zone.addEventListener(type, () => {
+          zone.classList.remove('drag-over');
+        });
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length > 0) {
+          input.files = e.dataTransfer.files;
+          showFileSelected(input.files[0].name);
+        }
+      });
+
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        input.value = '';
+        preview.classList.add('hidden');
+        content.classList.remove('hidden');
+        validateInput(input);
+      });
+
+      function showFileSelected(filename) {
+        filenameText.textContent = filename;
+        preview.classList.remove('hidden');
+        content.classList.add('hidden');
+        clearErrorState(input);
+      }
+    }
+
+    configureDragAndDrop('audio-zone', 'cough_audio', 'audio-preview-box', 'audio-filename', 'audio-remove-btn');
+    configureDragAndDrop('xray-zone', 'chest_xray', 'xray-preview-box', 'xray-filename', 'xray-remove-btn');
+
+    // Live validation rules
+    const form = document.getElementById('prediction-form');
+    const formFields = form.querySelectorAll('input, select');
+
+    formFields.forEach(field => {
+      field.addEventListener('blur', () => validateInput(field));
+      field.addEventListener('input', () => {
+        if (field.value) clearErrorState(field);
+      });
+    });
+
+    function validateInput(field) {
+      const errorSpan = document.getElementById(`${field.id}-error`);
+      if (!errorSpan) return true;
+
+      // Handle file inputs
+      if (field.type === 'file') {
+        if (field.required && field.files.length === 0) {
+          showErrorState(field, 'Upload is required.');
+          return false;
+        }
+        clearErrorState(field);
+        return true;
+      }
+
+      // Handle normal fields
+      if (field.required && !field.value.trim()) {
+        showErrorState(field, 'This field is required.');
+        return false;
+      }
+
+      if (field.type === 'number') {
+        const val = parseFloat(field.value);
+        const min = parseFloat(field.min);
+        const max = parseFloat(field.max);
+        if (isNaN(val)) {
+          showErrorState(field, 'Enter a valid numeric value.');
+          return false;
+        }
+        if (!isNaN(min) && val < min) {
+          showErrorState(field, `Must be at least ${min}.`);
+          return false;
+        }
+        if (!isNaN(max) && val > max) {
+          showErrorState(field, `Must not exceed ${max}.`);
+          return false;
+        }
+      }
+
+      clearErrorState(field);
+      return true;
+    }
+
+    function showErrorState(field, message) {
+      const errorSpan = document.getElementById(`${field.id}-error`);
+      if (errorSpan) {
+        errorSpan.textContent = message;
+        errorSpan.classList.add('visible');
+      }
+      field.classList.add('invalid-field');
+      
+      // For files, apply border shadow on the parent upload zone
+      if (field.type === 'file') {
+        document.getElementById(`${field.id === 'cough_audio' ? 'audio' : 'xray'}-zone`).classList.add('invalid-field');
+      }
+    }
+
+    function clearErrorState(field) {
+      const errorSpan = document.getElementById(`${field.id}-error`);
+      if (errorSpan) {
+        errorSpan.textContent = '';
+        errorSpan.classList.remove('visible');
+      }
+      field.classList.remove('invalid-field');
+      
+      if (field.type === 'file') {
+        document.getElementById(`${field.id === 'cough_audio' ? 'audio' : 'xray'}-zone`).classList.remove('invalid-field');
+      }
+    }
+
+    // Prediction submission AJAX handler
+    let lastReportFilename = null;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      let isValid = true;
+      formFields.forEach(field => {
+        if (!validateInput(field)) isValid = false;
+      });
+
+      if (!isValid) {
+        const firstInvalid = form.querySelector('.invalid-field, input:invalid');
+        if (firstInvalid) firstInvalid.focus();
+        return;
+      }
+
+      // Enter loading state
+      const submitBtn = document.getElementById('predict-btn');
+      const textSpan = document.getElementById('predict-btn-text');
+      const spinnerSpan = document.getElementById('predict-btn-spinner');
+
+      submitBtn.disabled = true;
+      textSpan.classList.add('hidden');
+      spinnerSpan.classList.remove('hidden');
+
+      const formData = new FormData(form);
+      
+      // Map form elements to boolean representations for backward compatibility
+      const duration = parseInt(document.getElementById('cough_duration').value || '0');
+      const sevFatigue = parseInt(document.getElementById('fatigue_severity').value || '0');
+      const wLoss = parseFloat(document.getElementById('weight_loss_val').value || '0');
+      const fLevel = document.getElementById('fever_level').value;
+
+      formData.set('persistent_cough', duration > 14 ? 'true' : 'false');
+      formData.set('fever', fLevel !== 'None' ? 'true' : 'false');
+      formData.set('weight_loss', wLoss > 0 ? 'true' : 'false');
+      formData.set('fatigue', sevFatigue > 4 ? 'true' : 'false');
+      formData.set('night_sweats', document.getElementById('night_sweats').value);
+      formData.set('blood_in_sputum', document.getElementById('blood_in_sputum').value);
+      formData.set('previous_tb', document.getElementById('previous_tb').value);
+      formData.set('chest_pain', document.getElementById('chest_pain').value);
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+          displayInferenceResults(result.data);
+        } else {
+          alert('Error during inference: ' + result.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Network failure occurred executing prediction pipeline.');
+      } finally {
+        submitBtn.disabled = false;
+        textSpan.classList.remove('hidden');
+        spinnerSpan.classList.add('hidden');
+      }
+    });
+
+    function displayInferenceResults(data) {
+      document.getElementById('results-placeholder').classList.add('hidden');
+      document.getElementById('results-active').classList.remove('hidden');
+
+      // Set values
+      const fusionPct = Math.round(data.final_probability * 100);
+      const xrayPct = Math.round(data.xray_probability * 100);
+      const coughPct = Math.round(data.cough_probability * 100);
+      const clinicalPct = Math.round(data.clinical_probability * 100);
+
+      document.getElementById('val-fusion').textContent = fusionPct + '%';
+      document.getElementById('val-xray').textContent = xrayPct + '%';
+      document.getElementById('val-cough').textContent = coughPct + '%';
+      document.getElementById('val-clinical').textContent = clinicalPct + '%';
+
+      // Update Result Banner
+      const banner = document.getElementById('result-banner');
+      const label = document.getElementById('result-label');
+      const desc = document.getElementById('result-description');
+      const icon = document.getElementById('result-banner-icon').querySelector('i');
+
+      const risk = data.prediction_label; // Low Risk, Medium Risk, High Risk
+      banner.className = 'result-banner-box ' + risk.toLowerCase().split(' ')[0];
+      label.textContent = `Tuberculosis ${risk}`;
+      
+      if (risk === 'High Risk') {
+        desc.textContent = 'Multimodal screening indices indicate high infection risk. Immediate sputum Smear/GeneXpert testing recommended.';
+        icon.className = 'fa-solid fa-triangle-exclamation';
+      } else if (risk === 'Medium Risk') {
+        desc.textContent = 'Screening indicates moderate risk. Re-evaluate clinical history and follow up in 1 week.';
+        icon.className = 'fa-solid fa-circle-exclamation';
+      } else {
+        desc.textContent = 'Screening shows low risk of infection. Patient should monitor symptoms and re-verify if status changes.';
+        icon.className = 'fa-solid fa-circle-check';
+      }
+
+      // Update images for Grad-CAM
+      if (data.xray_url && data.gradcam_url) {
+        document.getElementById('img-original-xray').src = data.xray_url;
+        document.getElementById('img-gradcam-xray').src = data.gradcam_url;
+        document.getElementById('gradcam-box').classList.remove('hidden');
+      } else {
+        document.getElementById('gradcam-box').classList.add('hidden');
+      }
+
+      // PDF report download link
+      lastReportFilename = data.pdf_filename;
+    }
+
+    document.getElementById('btn-pdf-download').addEventListener('click', () => {
+      if (lastReportFilename) {
+        window.location.href = `/download-report/${lastReportFilename}`;
+      }
+    });
+
+    // live training status updates
+    let logInterval = null;
+
+    async function checkTrainingStatus() {
+      try {
+        const response = await fetch('/api/training-status');
+        const status = await response.json();
+
+        // Update badge states
+        updateBadge('badge-cough-status', status.cough_status);
+        updateBadge('badge-xray-status', status.xray_status);
+        
+        document.getElementById('text-active-phase').textContent = status.active_phase;
+
+        // Terminal scroll updating
+        const logsBox = document.getElementById('terminal-logs');
+        const originalScrollTop = logsBox.scrollTop;
+        const isScrolledToBottom = logsBox.scrollHeight - logsBox.clientHeight <= logsBox.scrollTop + 50;
+
+        logsBox.textContent = status.logs || 'Establishing logger channels...';
+
+        if (isScrolledToBottom) {
+          logsBox.scrollTop = logsBox.scrollHeight;
+        }
+
+        // Live dot animation pulse
+        const dot = document.getElementById('terminal-pulse');
+        if (status.is_training) {
+          dot.className = 'fa-solid fa-spinner fa-spin text-warning';
+        } else {
+          dot.className = 'fa-solid fa-circle text-success';
+        }
+
+        // Handle disabled retraining state
+        document.getElementById('btn-trigger-retrain').disabled = status.is_training;
+
+      } catch (err) {
+        console.error('Error fetching logs status:', err);
+      }
+    }
+
+    function updateBadge(id, state) {
+      const badge = document.getElementById(id);
+      badge.textContent = state;
+      badge.className = 'status-badge ' + state.toLowerCase();
+    }
+
+    document.getElementById('btn-trigger-retrain').addEventListener('click', async () => {
+      if (confirm('Are you sure you want to delete existing weights and trigger clean automated retraining? This takes ~30 seconds.')) {
+        try {
+          const res = await fetch('/api/trigger-retrain', { method: 'POST' });
+          const jsonRes = await res.json();
+          if (jsonRes.status === 'success') {
+            checkTrainingStatus();
+          } else {
+            alert(jsonRes.message);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+
+    // Pull Model metrics and draw ROC paths using SVG
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/api/metrics');
+        const metrics = await res.json();
+
+        // Populate table values
+        populateMetricRow('m-cough', metrics.cough);
+        populateMetricRow('m-xray', metrics.xray);
+
+        // Populate confusion matrix values
+        populateConfusionMatrix('cm-cough', metrics.cough.confusion_matrix);
+        populateConfusionMatrix('cm-xray', metrics.xray.confusion_matrix);
+
+        // Draw ROC curves
+        drawRocCurve('svg-path-cough', metrics.cough.roc_curve);
+        drawRocCurve('svg-path-xray', metrics.xray.roc_curve);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function populateMetricRow(prefix, modelMetrics) {
+      document.getElementById(`${prefix}-acc`).textContent = Math.round(modelMetrics.accuracy * 1000) / 10 + '%';
+      document.getElementById(`${prefix}-prec`).textContent = Math.round(modelMetrics.precision * 1000) / 10 + '%';
+      document.getElementById(`${prefix}-rec`).textContent = Math.round(modelMetrics.recall * 1000) / 10 + '%';
+      document.getElementById(`${prefix}-f1`).textContent = Math.round(modelMetrics.f1_score * 1000) / 10 + '%';
+      document.getElementById(`${prefix}-auc`).textContent = modelMetrics.roc_auc.toFixed(2);
+    }
+
+    function populateConfusionMatrix(cmId, matrix) {
+      document.getElementById(`${cmId}-tn`).textContent = matrix.tn;
+      document.getElementById(`${cmId}-fp`).textContent = matrix.fp;
+      document.getElementById(`${cmId}-fn`).textContent = matrix.fn;
+      document.getElementById(`${cmId}-tp`).textContent = matrix.tp;
+    }
+
+    function drawRocCurve(pathId, coordinates) {
+      const path = document.getElementById(pathId);
+      if (!coordinates || coordinates.length === 0) return;
+
+      // Map [0,1] coordinates to SVG bounds [0, 100]
+      // In SVG: y=0 is top, y=100 is bottom. So y = 100 - (tpr * 100).
+      const points = coordinates.map(pt => {
+        const x = pt.fpr * 100;
+        const y = 100 - (pt.tpr * 100);
+        return `${x.toFixed(1)},${y.toFixed(1)}`;
+      });
+
+      path.setAttribute('d', `M ${points.join(' L ')}`);
+    }
+
+    // Pull Dataset statistics
+    async function loadDatasetStats() {
+      try {
+        const res = await fetch('/api/dataset-stats');
+        const stats = await res.json();
+
+        // Update counts
+        document.getElementById('txt-cough-pos').textContent = stats.cough.positive;
+        document.getElementById('txt-cough-neg').textContent = stats.cough.negative;
+        document.getElementById('txt-xray-pos').textContent = stats.xray.positive;
+        document.getElementById('txt-xray-neg').textContent = stats.xray.negative;
+
+        // Calculate and set widths for visual bars
+        const totalCough = stats.cough.positive + stats.cough.negative;
+        const totalXray = stats.xray.positive + stats.xray.negative;
+
+        const coughPosPct = totalCough > 0 ? (stats.cough.positive / totalCough) * 100 : 50;
+        const xrayPosPct = totalXray > 0 ? (stats.xray.positive / totalXray) * 100 : 50;
+
+        document.getElementById('bar-cough-pos').style.width = coughPosPct + '%';
+        document.getElementById('bar-cough-neg').style.width = (100 - coughPosPct) + '%';
+        document.getElementById('bar-xray-pos').style.width = xrayPosPct + '%';
+        document.getElementById('bar-xray-neg').style.width = (100 - xrayPosPct) + '%';
+
+        // Update clinical stats
+        if (stats.clinical && stats.clinical.total_clinical > 0) {
+          const clin = stats.clinical;
+          document.getElementById('txt-clinical-total').textContent = clin.total_clinical.toLocaleString();
+          document.getElementById('txt-clinical-age').textContent = clin.avg_age.toFixed(1) + ' Years';
+          
+          const malePct = ((clin.male_clinical / clin.total_clinical) * 100).toFixed(1);
+          const femalePct = ((clin.female_clinical / clin.total_clinical) * 100).toFixed(1);
+          document.getElementById('txt-clinical-gender').textContent = `${malePct}% M / ${femalePct}% F`;
+          
+          document.getElementById('txt-clinical-pos').textContent = clin.positive_clinical.toLocaleString();
+          document.getElementById('txt-clinical-neg').textContent = clin.negative_clinical.toLocaleString();
+          
+          const clinPosPct = (clin.positive_clinical / clin.total_clinical) * 100;
+          document.getElementById('bar-clinical-pos').style.width = clinPosPct + '%';
+          document.getElementById('bar-clinical-neg').style.width = (100 - clinPosPct) + '%';
+          document.getElementById('card-clinical-dataset').classList.remove('hidden');
+        } else {
+          document.getElementById('card-clinical-dataset').classList.add('hidden');
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Pull Dashboard summary stats
+    async function loadDashboardStats() {
+      try {
+        const res = await fetch('/api/dataset-stats');
+        const stats = await res.json();
+
+        const totalCough = stats.cough.positive + stats.cough.negative;
+        const totalXray = stats.xray.positive + stats.xray.negative;
+
+        document.getElementById('dash-cough-count').textContent = totalCough;
+        document.getElementById('dash-xray-count').textContent = totalXray;
+        
+        // Acceleration indication
+        const hwText = document.getElementById('hw-acceleration-value');
+        const hwIcon = document.getElementById('hw-icon');
+        hwText.textContent = stats.hardware.device_type;
+        
+        if (stats.hardware.gpu_accelerated) {
+          hwIcon.className = 'fa-solid fa-microchip text-cyan';
+        } else {
+          hwIcon.className = 'fa-solid fa-cpu text-gray';
+        }
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Startup initializations
+    window.addEventListener('load', () => {
+      loadDashboardStats();
+      // Poll training logs status every 2 seconds
+      checkTrainingStatus();
+      logInterval = setInterval(checkTrainingStatus, 2000);
+    });
+
+  </script>
+</body>
+</html>

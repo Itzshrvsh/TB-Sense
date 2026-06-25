@@ -1,0 +1,39 @@
+# Virtual Environment
+venv/
+.venv/
+env/
+ENV/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+
+# OS Specific
+.DS_Store
+.DS_Store?
+._*
+Thumsc.db
+ehthumbs.db
+desktop.ini
+
+# Next.js Build Outputs (inside frontend/)
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+frontend/build/
+
+# Uploads & Temp Files
+dashboard/static/uploads/*
+# Keep placeholder in uploads directory
+!dashboard/static/uploads/.gitkeep
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

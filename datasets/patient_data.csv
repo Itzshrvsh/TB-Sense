@@ -1,0 +1,5 @@
+patient_id,age,gender,cough_duration_days,fever,weight_loss,night_sweats,cough_audio_file,chest_xray_file,tb_status
+P0001,45,M,14,1,1,0,cough_P0001.wav,xray_P0001.png,1
+P0002,29,F,5,0,0,0,cough_P0002.wav,xray_P0002.png,0
+P0003,62,M,21,1,1,1,cough_P0003.wav,xray_P0003.png,1
+P0004,35,F,3,0,0,0,cough_P0004.wav,xray_P0004.png,0
