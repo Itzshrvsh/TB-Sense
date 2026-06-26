@@ -4,6 +4,7 @@ import json
 import threading
 import time
 from flask import Flask, render_template, request, jsonify, send_file
+from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import tensorflow as tf
 
@@ -17,6 +18,7 @@ from train_xray import train_xray_model, XRAY_DIR, MODEL_PATH as XRAY_MODEL_PATH
 app = Flask(__name__, 
             static_folder='dashboard/static', 
             template_folder='dashboard/templates')
+CORS(app)
 
 # Upload configs
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'dashboard/static/uploads')

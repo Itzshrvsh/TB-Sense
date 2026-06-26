@@ -44,6 +44,17 @@ import {
 
 type Tab = "landing" | "dashboard" | "prediction" | "training" | "metrics" | "dataset" | "settings";
 
+const getApiUrl = (path: string): string => {
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (!isLocal) {
+      const prodUrl = process.env.NEXT_PUBLIC_API_URL || "https://tb-sense.onrender.com";
+      return `${prodUrl}${path}`;
+    }
+  }
+  return path;
+};
+
 interface PatientData {
   age: string;
   gender: string;
@@ -172,7 +183,7 @@ export default function Home() {
 
   const fetchDatasetStats = async () => {
     try {
-      const res = await fetch("/api/dataset-stats");
+      const res = await fetch(getApiUrl("/api/dataset-stats"));
       if (res.ok) {
         const data = await res.json();
         setDatasetStats(data);
@@ -184,7 +195,7 @@ export default function Home() {
 
   const fetchMetrics = async () => {
     try {
-      const res = await fetch("/api/metrics");
+      const res = await fetch(getApiUrl("/api/metrics"));
       if (res.ok) {
         const data = await res.json();
         setMetrics(data);
@@ -196,7 +207,7 @@ export default function Home() {
 
   const fetchTrainingStatus = async () => {
     try {
-      const res = await fetch("/api/training-status");
+      const res = await fetch(getApiUrl("/api/training-status"));
       if (res.ok) {
         const data = await res.json();
         setTrainingState(data);
@@ -208,7 +219,7 @@ export default function Home() {
 
   const triggerRetraining = async () => {
     try {
-      const res = await fetch("/api/trigger-retrain", { method: "POST" });
+      const res = await fetch(getApiUrl("/api/trigger-retrain"), { method: "POST" });
       if (res.ok) {
         fetchTrainingStatus();
       }
@@ -271,7 +282,7 @@ export default function Home() {
     if (xrayFile) formData.append("chest_xray", xrayFile);
     
     try {
-      const res = await fetch("/predict", {
+      const res = await fetch(getApiUrl("/predict"), {
         method: "POST",
         body: formData
       });
@@ -1226,7 +1237,7 @@ export default function Home() {
                             </div>
                             <div className="space-y-1.5">
                               <div className="aspect-square rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
-                                <img src={predictionResults.gradcam_url} className="w-full h-full object-cover" alt="Grad-CAM Overlay" />
+                                <img src={getApiUrl(predictionResults.gradcam_url)} className="w-full h-full object-cover" alt="Grad-CAM Overlay" />
                               </div>
                               <p className="text-[10px] text-slate-400 font-bold text-center">Lungs Activation Map</p>
                             </div>
@@ -1310,7 +1321,7 @@ export default function Home() {
                         
                         {predictionResults.pdf_filename && (
                           <a
-                            href={`/download-report/${predictionResults.pdf_filename}`}
+                            href={getApiUrl(`/download-report/${predictionResults.pdf_filename}`)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full py-2.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 rounded-lg text-slate-800 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors"
