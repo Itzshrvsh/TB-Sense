@@ -122,6 +122,7 @@ export default function Home() {
   const [predicting, setPredicting] = useState(false);
   const [predictionResults, setPredictionResults] = useState<PredictionResults | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isCloud, setIsCloud] = useState(false);
   
   // Model Training State
   const [trainingState, setTrainingState] = useState({
@@ -141,6 +142,9 @@ export default function Home() {
 
   // Load stats and metrics on mount
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsCloud(window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1");
+    }
     fetchDatasetStats();
     fetchMetrics();
     fetchTrainingStatus();
@@ -1333,16 +1337,27 @@ export default function Home() {
                   <div className="space-y-4">
                     <button
                       onClick={triggerRetraining}
-                      disabled={trainingState.is_training}
+                      disabled={trainingState.is_training || isCloud}
                       className="w-full py-3 bg-[#0F172A] hover:bg-[#1E293B] disabled:bg-slate-400 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
                     >
                       <RefreshCw className={`w-4 h-4 ${trainingState.is_training ? "animate-spin" : ""}`} />
                       {trainingState.is_training ? "Training Active..." : "Trigger Full Pipeline"}
                     </button>
                     
-                    <p className="text-[11px] text-slate-500 leading-relaxed">
-                      This will delete current model caches and retrain models (Clinical Random Forest, 3 Epochs Cough CNN, and 3 Epochs Chest X-ray EfficientNetB0) locally using local GPU PluggableDevice (Metal).
-                    </p>
+                    {isCloud ? (
+                      <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl flex gap-2 text-[10px] leading-relaxed">
+                        <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
+                        <div>
+                          <strong>Cloud Limitation:</strong> On-device model training is disabled in cloud production (Render + Vercel). Cloud instances do not support local Apple Silicon Metal GPU acceleration and have strict memory limits (512MB RAM) that will crash if running TensorFlow compilation.
+                          <br/><br/>
+                          Run the application locally on your macOS machine to utilize hardware training features.
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-slate-500 leading-relaxed">
+                        This will delete current model caches and retrain models (Clinical Random Forest, 3 Epochs Cough CNN, and 3 Epochs Chest X-ray EfficientNetB0) locally using local GPU PluggableDevice (Metal).
+                      </p>
+                    )}
                   </div>
                   
                   {/* Status Indicator list */}
