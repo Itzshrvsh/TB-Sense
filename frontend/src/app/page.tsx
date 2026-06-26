@@ -475,9 +475,15 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50">
-              <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
-              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">On-Device Local API</span>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${
+              isCloud 
+                ? "border-blue-200 bg-blue-50" 
+                : "border-slate-200 bg-slate-50"
+            }`}>
+              <span className={`w-2 h-2 rounded-full animate-pulse ${isCloud ? "bg-blue-600" : "bg-[#10B981]"}`}></span>
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${isCloud ? "text-blue-700" : "text-slate-600"}`}>
+                {isCloud ? "Cloud Production API" : "On-Device Local API"}
+              </span>
             </div>
             <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
               <User className="w-4 h-4 text-slate-600" />
